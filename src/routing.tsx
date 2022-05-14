@@ -1,46 +1,141 @@
 import React from "react";
-// the module context
-const context = require.context('./pages', true, /\.(t|j)sx$/);
-// list of scanned routes
+import { Route, Routes } from "react-router-dom";
+
+type FC = React.FC<{children: React.ReactNode}>;
+/**
+ * Route data
+ */
+interface IRoute {
+    route: string,
+    /**
+     * The page component
+     */
+    fc: FC | null;
+    /**
+     * The layout component
+     */
+    layout: FC | null;
+}
+/**
+ * The page routes
+ */
 const routes: {
-    readonly path: string,
-    readonly component: React.FunctionComponent
-}[] = [];
-// scan the filesystem for routes
-context.keys().forEach(key => {
-    const path = formatRoute(key);
-    const component = context(key);
-    if (path) {
-        routes.push({
-            path,
-            component: component.default
-        });
+    [x: string]: IRoute
+} = {};
+/**
+ * The pages scanner
+ */
+const context = require.context('./pages', true, /\.(t|j)sx$/);
+
+// Scan the pages!
+context.keys().forEach(path => {
+    // react component from the file
+    const component: FC = context(path).default;
+    // path is lowercase
+    path = path.toLowerCase();
+    // replace relative path with absolute path
+    path = path.replace(/^\.\//, '/');
+    // remove extension
+    path = path.replace(/\.(t|j)sx$/, '');
+    // replace [x] format by url param
+    path = path.replace(/\[(\w+)\]/g, ":$1");
+
+    // get path segments
+    const segments = path.split('/');
+    // get path endpoint
+    const endpoint = segments.pop();
+    // get path parent
+    const parent = (() => {
+        const parent = segments.join('/');
+        if (parent == "") return "/";
+        return parent;
+    })();
+
+    // create routes if not exists
+    if (!routes[parent]) routes[parent] = {
+        route: parent,
+        fc: null,
+        layout: null
+    };
+
+    // set the index entry
+    if (endpoint === 'index') {
+        routes[parent].fc = component;
+    }
+    // set the layout entry
+    else if (endpoint === '_layout') {
+        routes[parent].layout = component;
+    }
+    // set the page entry
+    else {
+        if (!routes[path]) routes[path] = {
+            route: path,
+            fc: null,
+            layout: null
+        };
+        routes[path].fc = component;
     }
 });
-/**
- * Formats a filesystem path to a React router path.
- * @param path The filesystem path to format.
- * @returns The formatted React router path.
- */
-function formatRoute(path: string) {
-    // replace multiple slashes with single slash
-    path = path.replace(/\/+/g, '/');
-    // Remove leading slash and trailing slash
-    path = path.replace(/^\.\//, '/').replace(/\.\w+$/, '');
-    // replace template names [x] with :x
-    path = path.replace(/\[(\w+)\]/g, ":$1");
-    // remove index from the end of the route
-    path = path.replace(/(\/|^)index$/, '');
-    // replace empty string with '/'
-    path = path.replace(/^$/, '/');
-    return path;
-}
-console.log(context.keys().map(x => formatRoute(x)));
 
 /**
- * Gets the list of routes.
- * @returns The list of scanned routes.
+ * Gets the parent route of the given path in the routes object
+ * @param path The path to get the parent of
+ * @returns The parent route
+ */
+function getParent(path: string) {
+    if (path == "/") return undefined;
+    const segments = path.split('/');
+    segments.pop();
+    const parent =  (() => {
+        const parent = segments.join('/');
+        if (parent == "") return "/";
+        return parent;
+    })();
+    const parentRoute = routes[parent];
+    if(parentRoute) return parentRoute;
+    return undefined;
+}
+/**
+ * Gets all the parent routes of the given path in the routes object
+ * @param path The path to get the routes of
+ * @returns The parent routes of the given path
+ */
+function getAllParents(path: string) {
+    const parents: IRoute[] = [];
+    let parent = getParent(path);
+    while (parent) {
+        parents.push(parent);
+        parent = getParent(parent.route);
+    }
+    return parents;
+}
+
+/**
+ * Gets the list of scanned routes with their layout and page components
  */
 export function getRoutes() {
-    return routes;
+    const elements: {path: string, element: React.ReactNode}[] = [];
+    Object.keys(routes).forEach(path => {
+        const route = routes[path];
+        const parents = getAllParents(path);
+
+        const layouts = parents.map(p => p.layout).concat(route.layout).filter(x => !!x);
+        
+        const fc = route.fc ?? (() => null);
+        let element = React.createElement(fc);
+        // reverse loop the layouts
+        for (let i = layouts.length - 1; i >= 0; i--) {
+            const layout = layouts[i] ?? (() => null);
+            element = React.createElement(layout, null, element);
+        }
+        elements.push({ path, element });
+    });
+    return elements;
+}
+
+export function RoutesComponent() {
+    const routes = getRoutes();
+    return <Routes>
+        {routes.map(({ path, element }) => <Route key={path} path={path} element={element} />)}
+    </Routes>
 }
