@@ -101,24 +101,16 @@ context.keys().forEach(path => {
         routes[path].fc = component;
     }
 });
-/**
- * Gets the parent route of the given path in the routes object
- * @param path The path to get the parent of
- * @returns The parent route
- */
-function getParent(path: string) {
-    if (path === "/") return undefined;
-    const segments = path.split('/');
-    segments.pop();
-    const parent =  (() => {
-        const parent = segments.join('/');
-        if (parent === "") return "/";
-        return parent;
-    })();
-    const parentRoute = routes[parent];
-    if(parentRoute) return parentRoute;
-    return undefined;
-}
+// remove entries with no page
+Object.keys(routes).forEach(route => {
+    if (!routes[route].fc && !routes[route].layout) delete routes[route];
+});
+// set the 404 route
+const page404 = routes["/404"];
+if (page404) delete routes["/404"];
+const element404 = React.createElement(page404.fc ?? (() => null));
+
+
 /**
  * Gets all the parent routes of the given path in the routes object
  * @param path The path to get the routes of
@@ -126,11 +118,11 @@ function getParent(path: string) {
  */
 function getAllParents(path: string) {
     const parents: IRoute[] = [];
-    let parent = getParent(path);
-    while (parent) {
-        parents.push(parent);
-        parent = getParent(parent.route);
-    }
+    Object.values(routes).forEach(route => {
+        if (path.startsWith(route.route)) {
+            parents.push(route);
+        }
+    });
     return parents;
 }
 
@@ -176,6 +168,7 @@ export function RoutesComponent() {
     const routes = getRoutes();
     return <Routes>
         {routes.map(({ path, element }) => <Route key={path} path={path} element={element} />)}
+        <Route path="*" element={element404} />
     </Routes>
 }
 /**
@@ -207,4 +200,16 @@ export function getChildRoutes(route: string, deep = 1) {
         .map(path => routes[route + path]);
     // return the routes
     return paths;
+}
+/**
+ * Checks if the given path is a child of the parent route
+ * @param parent The parent route
+ * @param child The child route
+ * @returns Whether the child route is a child of the parent route
+ */
+export function isChildRoute(parent: string, child: string) {
+    // remove starting slash
+    parent = parent.replace(/^\//, '');
+    child = child.replace(/^\//, '');
+    return child.startsWith(parent);
 }

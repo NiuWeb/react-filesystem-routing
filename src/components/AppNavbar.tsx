@@ -2,7 +2,7 @@ import AppBar from "@mui/material/AppBar";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getChildRoutes } from "src/routing";
+import { getChildRoutes, isChildRoute } from "src/routing";
 
 // get the main pages
 const AppNavbar: React.FC = () => {
@@ -14,7 +14,8 @@ const AppNavbar: React.FC = () => {
 
     // get only the main pages
     const pages = getChildRoutes("/");
-    const pageIndex = pages.findIndex(x => x.route.replace(/\//g, "") === route);
+
+    const pageIndex = pages.findIndex(x => isChildRoute(route, x.route));
     return <>
         <AppBar>
             <Tabs
