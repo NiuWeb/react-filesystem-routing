@@ -1,11 +1,8 @@
-import { Link } from "react-router-dom"
+import Box from "@mui/material/Box"
 
-export default () => {
-    return <div>
-        <h2>This is the index page</h2>
-        <ul>
-            <li><Link to="/home">Home page</Link></li>
-            <li><Link to="/product">Product page</Link></li>
-        </ul>
-    </div>
+const page: React.FC = () => {
+    return <Box>
+        <h1>Hello world!</h1>
+    </Box>
 }
+export default page;
