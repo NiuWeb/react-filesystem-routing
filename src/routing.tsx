@@ -1,12 +1,25 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 
-type FC = React.FC<{children: React.ReactNode}>;
+type FC = React.FC<{ children: React.ReactNode }>;
+
 /**
- * Route data
+ * Route basic data
  */
-interface IRoute {
-    route: string,
+interface IRouteData {
+    /**
+     * The title of the route
+     */
+    title: string;
+    /**
+     * The path of the route
+     */
+    route: string;
+}
+/**
+ * Route render data
+ */
+interface IRouteComponents {
     /**
      * The page component
      */
@@ -16,6 +29,10 @@ interface IRoute {
      */
     layout: FC | null;
 }
+/**
+ * Route full data
+ */
+type IRoute = IRouteData & IRouteComponents;
 /**
  * The page routes
  */
@@ -29,8 +46,10 @@ const context = require.context('./pages', true, /\.(t|j)sx$/);
 
 // Scan the pages!
 context.keys().forEach(path => {
-    // react component from the file
-    const component: FC = context(path).default;
+    // get the module from context
+    const module = context(path);
+    // get react component from the file
+    const component: FC = module.default;
     // path is lowercase
     path = path.toLowerCase();
     // replace relative path with absolute path
@@ -51,8 +70,12 @@ context.keys().forEach(path => {
         return parent;
     })();
 
+    // get the route title
+    const title = module.title ?? endpoint;
+
     // create routes if not exists
     if (!routes[parent]) routes[parent] = {
+        title,
         route: parent,
         fc: null,
         layout: null
@@ -61,6 +84,7 @@ context.keys().forEach(path => {
     // set the index entry
     if (endpoint === 'index') {
         routes[parent].fc = component;
+        routes[parent].title = title;
     }
     // set the layout entry
     else if (endpoint === '_layout') {
@@ -69,6 +93,7 @@ context.keys().forEach(path => {
     // set the page entry
     else {
         if (!routes[path]) routes[path] = {
+            title,
             route: path,
             fc: null,
             layout: null
@@ -76,7 +101,6 @@ context.keys().forEach(path => {
         routes[path].fc = component;
     }
 });
-
 /**
  * Gets the parent route of the given path in the routes object
  * @param path The path to get the parent of
@@ -111,6 +135,15 @@ function getAllParents(path: string) {
 }
 
 /**
+ * Gets the basic data of the routes
+ */
+export function getRoutesData(): IRouteData[] {
+    return Object.values(routes).map(route => ({
+        title: route.title,
+        route: route.route
+    }));
+}
+/**
  * Gets the list of scanned routes with their layout and page components
  */
 export function getRoutes() {
@@ -144,4 +177,14 @@ export function RoutesComponent() {
     return <Routes>
         {routes.map(({ path, element }) => <Route key={path} path={path} element={element} />)}
     </Routes>
+}
+/**
+ * Gets the title of the route with the specified path
+ * @param path The path to get the route of
+ * @returns The title
+ */
+export function getTitle(path: string) {
+    const route = routes[path];
+    if (route) return route.title;
+    return "";
 }
