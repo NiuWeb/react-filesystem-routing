@@ -1,18 +1,22 @@
 import Box from "@mui/material/Box"
+import Button from "@mui/material/Button";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import Typography from "@mui/material/Typography"
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const title = "Products";
 const Products: React.FC = () => {
+    const navigate = useNavigate();
     return <Box>
         <Typography variant="h4" textAlign="center">
             {title}
         </Typography>
         <List>
             <ListItem>
-                <Link to="./view/345">View a product</Link>
+                <Button variant="contained" onClick={() => navigate("./view/354")}>
+                    View a product
+                </Button>
             </ListItem>
         </List>
     </Box>
