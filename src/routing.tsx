@@ -105,10 +105,17 @@ context.keys().forEach(path => {
 Object.keys(routes).forEach(route => {
     if (!routes[route].fc && !routes[route].layout) delete routes[route];
 });
+
+// get the main route
+const main = routes["/"];
 // set the 404 route
 const page404 = routes["/404"];
 if (page404) delete routes["/404"];
-const element404 = React.createElement(page404.fc ?? (() => null));
+const element404 = React.createElement(
+    main.layout ?? React.Fragment,
+    null,
+    React.createElement(page404.fc ?? React.Fragment)
+);
 
 
 /**
@@ -139,7 +146,7 @@ export function getRoutesData(): IRouteData[] {
  * Gets the list of scanned routes with their layout and page components
  */
 export function getRoutes() {
-    const elements: {path: string, element: React.ReactNode}[] = [];
+    const elements: { path: string, element: React.ReactNode }[] = [];
     Object.keys(routes).forEach(path => {
         // get the route
         const route = routes[path];

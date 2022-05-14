@@ -15,7 +15,7 @@ const AppNavbar: React.FC = () => {
     // get only the main pages
     const pages = getChildRoutes("/");
 
-    const pageIndex = pages.findIndex(x => isChildRoute(route, x.route));
+    const pageIndex = Math.max(0, pages.findIndex(x => isChildRoute(route, x.route)));
     return <>
         <AppBar>
             <Tabs
