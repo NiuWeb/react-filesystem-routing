@@ -1,8 +1,16 @@
 import Box from "@mui/material/Box"
+import Typography from "@mui/material/Typography"
+import lorem from "src/util/lorem";
 
-const page: React.FC = () => {
+export const title = "Home";
+const Home: React.FC = () => {
     return <Box>
-        <h1>Hello world!</h1>
+        <Typography variant="h4" textAlign="center">
+            {title}
+        </Typography>
+        <Typography variant="body1">
+            {lorem.generateParagraphs(16)}
+        </Typography>
     </Box>
 }
-export default page;
+export default Home;

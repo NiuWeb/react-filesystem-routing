@@ -154,13 +154,13 @@ export function getRoutes() {
         // get all the parent routes
         const parents = getAllParents(path);
         // get the layout components from the parents and the current route
-        const layouts = parents.map(p => p.layout).concat(route.layout).filter(x => !!x);
+        const layouts = [route.layout].concat(parents.map(p => p.layout)).filter(x => !!x);
         // the page component of the current route
         const fc = route.fc ?? (() => null);
         // create the page element from the component
         let element = React.createElement(fc);
         // and include it in the layout components (from in to out)
-        for (let i = layouts.length - 1; i >= 0; i--) {
+        for (let i = 0; i < layouts.length; i++) {
             const layout = layouts[i] ?? (() => null);
             element = React.createElement(layout, null, element);
         }
@@ -187,4 +187,24 @@ export function getTitle(path: string) {
     const route = routes[path];
     if (route) return route.title;
     return "";
+}
+
+/**
+ * Get the child routes from a parent route
+ * @param route The parent route
+ * @returns The child routes
+ */
+export function getChildRoutes(route: string, deep = 1) {
+    // get all the paths relative to the parent
+    const paths = Object.keys(routes)
+        // filter the paths that are not relative to the parent
+        .filter(path => path.startsWith(route))
+        // remove the parent path
+        .map(path => path.substring(route.length))
+        // filter the paths that are not in the deep level
+        .filter(path => path.split('/').length <= deep)
+        // get the routes
+        .map(path => routes[route + path]);
+    // return the routes
+    return paths;
 }
