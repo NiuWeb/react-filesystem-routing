@@ -47,7 +47,7 @@ context.keys().forEach(path => {
     // get path parent
     const parent = (() => {
         const parent = segments.join('/');
-        if (parent == "") return "/";
+        if (parent === "") return "/";
         return parent;
     })();
 
@@ -83,12 +83,12 @@ context.keys().forEach(path => {
  * @returns The parent route
  */
 function getParent(path: string) {
-    if (path == "/") return undefined;
+    if (path === "/") return undefined;
     const segments = path.split('/');
     segments.pop();
     const parent =  (() => {
         const parent = segments.join('/');
-        if (parent == "") return "/";
+        if (parent === "") return "/";
         return parent;
     })();
     const parentRoute = routes[parent];
