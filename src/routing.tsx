@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 
 type FC = React.FC<{ children: React.ReactNode }>;
 
@@ -16,6 +16,11 @@ interface IRouteData {
      * The path of the route
      */
     route: string;
+
+    /**
+     * The redirection
+     */
+    redirect?: string;
 }
 /**
  * Route render data
@@ -55,8 +60,7 @@ let element404: React.ReactElement;
  */
 export async function init() {
     // Scan the pages!
-    const paths = context.keys();
-
+    const paths = context.keys().filter(x => x.startsWith("./"));
     await Promise.all(paths.map(async path => {
         // get the module from context
         const module = await context(path);
@@ -83,22 +87,25 @@ export async function init() {
         })();
     
         // get the route title
-        const title = module.title ?? endpoint;
-        const position = module.position ?? 0;
-    
+        const title: string = module.title ?? endpoint;
+        // get the route position
+        const position: number = module.position ?? 0;
+        // get the route redirect
+        const redirect: string | undefined = module.redirect ?? undefined;
         // create routes if not exists
         if (!routes[parent]) routes[parent] = {
             position,
             title,
             route: parent,
             fc: null,
-            layout: null
+            layout: null,
         };
     
         // set the index entry
         if (endpoint === 'index') {
             routes[parent].fc = component;
             routes[parent].title = title;
+            routes[parent].redirect = redirect;
         }
         // set the layout entry
         else if (endpoint === '_layout') {
@@ -114,6 +121,7 @@ export async function init() {
                 layout: null
             };
             routes[path].fc = component;
+            routes[path].redirect = redirect;
         }
     }))
     // remove entries with no page
@@ -144,8 +152,6 @@ export async function init() {
         null,
         React.createElement(page404.fc ?? React.Fragment)
     );
-
-    console.log(routes);
 }
 
 
@@ -178,7 +184,11 @@ export function getRoutesData(): IRouteData[] {
  * Gets the list of scanned routes with their layout and page components
  */
 export function getRoutes() {
-    const elements: { path: string, element: React.ReactNode }[] = [];
+    const elements: {
+        path: string,
+        element: React.ReactNode,
+        redirect?: string | undefined
+    }[] = [];
     Object.keys(routes).forEach(path => {
         // get the route
         const route = routes[path];
@@ -193,17 +203,16 @@ export function getRoutes() {
         if (route.layout && !layouts.includes(route.layout)) {
             layouts.splice(0, 0, route.layout);
         }
-        console.log("route: ", route.route, "layout: ", layouts);
         // the page component of the current route
         const fc = route.fc ?? (() => null);
         // create the page element from the component
         let element = React.createElement(fc);
         // and include it in the layout components (from in to out)
         for (let i = layouts.length - 1; i >= 0; i--) {
-            const layout = layouts[i] ?? (() => null);
+            const layout = layouts[i] ?? (({children}: {children: React.ReactNode}) => <>{children}</>);
             element = React.createElement(layout, null, element);
         }
-        elements.push({ path, element });
+        elements.push({ path, element, redirect: route.redirect });
     });
     return elements;
 }
@@ -214,7 +223,14 @@ export function getRoutes() {
 export function RoutesComponent() {
     const routes = getRoutes();
     return <Routes>
-        {routes.map(({ path, element }) => <Route key={path} path={path} element={element} />)}
+        {routes.map(({ path, element, redirect }) => {
+            const el = redirect ? <Navigate replace to={redirect} /> : element;
+            return <Route
+                key={path}
+                path={path}
+                element={el}
+            />;
+        })}
         <Route path="*" element={element404} />
     </Routes>
 }
