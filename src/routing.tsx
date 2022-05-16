@@ -147,10 +147,12 @@ export async function init() {
     // set the 404 route
     const page404 = routes["/404"];
     if (page404) delete routes["/404"];
+
+    const el = page404.redirect ? () => <Navigate replace to={page404.redirect ?? "/"} /> : page404.fc;
     element404 = React.createElement(
         main.layout ?? React.Fragment,
         null,
-        React.createElement(page404.fc ?? React.Fragment)
+        React.createElement(el ?? React.Fragment)
     );
 }
 
