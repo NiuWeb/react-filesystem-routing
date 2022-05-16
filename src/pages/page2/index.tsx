@@ -3,7 +3,7 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import lorem from "src/util/lorem";
 
-export const title = "About";
+export const title = "Page 2";
 const About: React.FC = () => {
     // array of 12 generated paragraphs
     const paragraphs = Array.from({ length: 12 }, () => lorem.generateParagraphs(1));

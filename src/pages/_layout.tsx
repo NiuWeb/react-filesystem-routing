@@ -1,19 +1,31 @@
+import AppNavbar from "src/components/layout/AppNavbar"
+import AppSidebar, { drawerWidth } from "src/components/layout/AppSidebar";
+import Box from "@mui/material/Box"
 import Container from "@mui/material/Container";
-import CssBaseline from "@mui/material/CssBaseline";
 import { useLocation } from "react-router-dom";
-import AppNavbar from "src/components/AppNavbar";
-import { getTitle } from "src/routing";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+
     const location = useLocation();
-    const title = getTitle(location.pathname);
-    document.title = title;
+
+    const isMain = location.pathname === "/";
+
     return <>
-        <CssBaseline />
         <AppNavbar />
-        <Container>
-            {children}
-        </Container>
+        <Box display="flex">
+            <Box sx={{
+                width: isMain ? "100%": { lg: `calc(100% - ${drawerWidth}px)` },
+            }}>
+                <Container>
+                    {children}
+                </Container>
+            </Box>
+            {isMain ? null: <Box sx={{
+                width: { lg: `${drawerWidth}px` },
+            }}>
+                <AppSidebar />
+            </Box>}
+        </Box>
     </>
 }
 export default Layout;

@@ -7,6 +7,7 @@ type FC = React.FC<{ children: React.ReactNode }>;
  * Route basic data
  */
 interface IRouteData {
+    position: number;
     /**
      * The title of the route
      */
@@ -32,7 +33,8 @@ interface IRouteComponents {
 /**
  * Route full data
  */
-type IRoute = IRouteData & IRouteComponents;
+export type IRoute = IRouteData & IRouteComponents;
+
 /**
  * The page routes
  */
@@ -42,80 +44,109 @@ const routes: {
 /**
  * The pages scanner
  */
-const context = require.context('./pages', true, /\.(t|j)sx$/);
+const context = require.context('./pages', true, /\.(t|j)sx$/, "lazy");
 
-// Scan the pages!
-context.keys().forEach(path => {
-    // get the module from context
-    const module = context(path);
-    // get react component from the file
-    const component: FC = module.default;
-    // path is lowercase
-    path = path.toLowerCase();
-    // replace relative path with absolute path
-    path = path.replace(/^\.\//, '/');
-    // remove extension
-    path = path.replace(/\.(t|j)sx$/, '');
-    // replace [x] format by url param
-    path = path.replace(/\[(\w+)\]/g, ":$1");
+/**
+ * The 404 element
+ */
+let element404: React.ReactElement;
+/**
+ * Initialize the routing
+ */
+export async function init() {
+    // Scan the pages!
+    const paths = context.keys();
 
-    // get path segments
-    const segments = path.split('/');
-    // get path endpoint
-    const endpoint = segments.pop();
-    // get path parent
-    const parent = (() => {
-        const parent = segments.join('/');
-        if (parent === "") return "/";
-        return parent;
-    })();
-
-    // get the route title
-    const title = module.title ?? endpoint;
-
-    // create routes if not exists
-    if (!routes[parent]) routes[parent] = {
-        title,
-        route: parent,
-        fc: null,
-        layout: null
-    };
-
-    // set the index entry
-    if (endpoint === 'index') {
-        routes[parent].fc = component;
-        routes[parent].title = title;
-    }
-    // set the layout entry
-    else if (endpoint === '_layout') {
-        routes[parent].layout = component;
-    }
-    // set the page entry
-    else {
-        if (!routes[path]) routes[path] = {
+    await Promise.all(paths.map(async path => {
+        // get the module from context
+        const module = await context(path);
+        // get react component from the file
+        const component: FC = module.default;
+        // path is lowercase
+        path = path.toLowerCase();
+        // replace relative path with absolute path
+        path = path.replace(/^\.\//, '/');
+        // remove extension
+        path = path.replace(/\.(t|j)sx$/, '');
+        // replace [x] format by url param
+        path = path.replace(/\[(\w+)\]/g, ":$1");
+    
+        // get path segments
+        const segments = path.split('/');
+        // get path endpoint
+        const endpoint = segments.pop();
+        // get path parent
+        const parent = (() => {
+            const parent = segments.join('/');
+            if (parent === "") return "/";
+            return parent;
+        })();
+    
+        // get the route title
+        const title = module.title ?? endpoint;
+        const position = module.position ?? 0;
+    
+        // create routes if not exists
+        if (!routes[parent]) routes[parent] = {
+            position,
             title,
-            route: path,
+            route: parent,
             fc: null,
             layout: null
         };
-        routes[path].fc = component;
-    }
-});
-// remove entries with no page
-Object.keys(routes).forEach(route => {
-    if (!routes[route].fc && !routes[route].layout) delete routes[route];
-});
+    
+        // set the index entry
+        if (endpoint === 'index') {
+            routes[parent].fc = component;
+            routes[parent].title = title;
+        }
+        // set the layout entry
+        else if (endpoint === '_layout') {
+            routes[parent].layout = component;
+        }
+        // set the page entry
+        else {
+            if (!routes[path]) routes[path] = {
+                position,
+                title,
+                route: path,
+                fc: null,
+                layout: null
+            };
+            routes[path].fc = component;
+        }
+    }))
+    // remove entries with no page
+    Object.keys(routes).forEach(route => {
+        if (!routes[route].fc && !routes[route].layout) delete routes[route];
+    });
+    
+    // sort the routes by position
+    const entries = Object.values(routes).sort((a, b) => a.position - b.position);
+    
+    // remove all routes
+    Object.keys(routes).forEach(route => {
+        delete routes[route];
+    });
+    
+    // insert sorted routes
+    entries.forEach(route => {
+        routes[route.route] = route;
+    });
+    
+    // get the main route
+    const main = routes["/"];
+    // set the 404 route
+    const page404 = routes["/404"];
+    if (page404) delete routes["/404"];
+    element404 = React.createElement(
+        main.layout ?? React.Fragment,
+        null,
+        React.createElement(page404.fc ?? React.Fragment)
+    );
 
-// get the main route
-const main = routes["/"];
-// set the 404 route
-const page404 = routes["/404"];
-if (page404) delete routes["/404"];
-const element404 = React.createElement(
-    main.layout ?? React.Fragment,
-    null,
-    React.createElement(page404.fc ?? React.Fragment)
-);
+    console.log(routes);
+}
 
 
 /**
@@ -138,6 +169,7 @@ function getAllParents(path: string) {
  */
 export function getRoutesData(): IRouteData[] {
     return Object.values(routes).map(route => ({
+        position: route.position,
         title: route.title,
         route: route.route
     }));
@@ -153,13 +185,21 @@ export function getRoutes() {
         // get all the parent routes
         const parents = getAllParents(path);
         // get the layout components from the parents and the current route
-        const layouts = [route.layout].concat(parents.map(p => p.layout)).filter(x => !!x);
+        const layouts = parents.map(p => p.layout)
+            // remove nulls
+            .filter(x => !!x)
+            // remove duplicates
+            .filter((x, i, a) => a.indexOf(x) === i);
+        if (route.layout && !layouts.includes(route.layout)) {
+            layouts.splice(0, 0, route.layout);
+        }
+        console.log("route: ", route.route, "layout: ", layouts);
         // the page component of the current route
         const fc = route.fc ?? (() => null);
         // create the page element from the component
         let element = React.createElement(fc);
         // and include it in the layout components (from in to out)
-        for (let i = 0; i < layouts.length; i++) {
+        for (let i = layouts.length - 1; i >= 0; i--) {
             const layout = layouts[i] ?? (() => null);
             element = React.createElement(layout, null, element);
         }
