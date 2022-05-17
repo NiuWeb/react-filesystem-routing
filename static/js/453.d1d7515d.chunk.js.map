@@ -1,0 +1,1 @@
+{"version":3,"file":"static/js/453.d1d7515d.chunk.js","mappings":"6JAGA,UAH2B,WACvB,OAAO","sources":["pages/404.tsx"],"sourcesContent":["const NotFound: React.FC = () => {\n    return <div>page not found :/</div>\n}\nexport default NotFound;"],"names":[],"sourceRoot":""}

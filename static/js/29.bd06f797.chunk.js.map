@@ -1,0 +1,1 @@
+{"version":3,"file":"static/js/29.bd06f797.chunk.js","mappings":"oNAAO,IAAMA,EAAW,SACXC,EAAW,EAExB,UADa,kBAAM","sources":["pages/page1/redirect.tsx"],"sourcesContent":["export const redirect = \"/page1\";\nexport const position = 3;\nconst Page = () => null;\nexport default Page;"],"names":["redirect","position"],"sourceRoot":""}

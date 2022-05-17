@@ -1,0 +1,38 @@
+{
+  "files": {
+    "main.js": "/react-filesystem-routing/static/js/main.f33150f2.js",
+    "static/js/453.d1d7515d.chunk.js": "/react-filesystem-routing/static/js/453.d1d7515d.chunk.js",
+    "static/js/82.076343f3.chunk.js": "/react-filesystem-routing/static/js/82.076343f3.chunk.js",
+    "static/js/701.facf5e14.chunk.js": "/react-filesystem-routing/static/js/701.facf5e14.chunk.js",
+    "static/js/883.3c00d3da.chunk.js": "/react-filesystem-routing/static/js/883.3c00d3da.chunk.js",
+    "static/js/776.9f852b14.chunk.js": "/react-filesystem-routing/static/js/776.9f852b14.chunk.js",
+    "static/js/29.bd06f797.chunk.js": "/react-filesystem-routing/static/js/29.bd06f797.chunk.js",
+    "static/js/976.900700b1.chunk.js": "/react-filesystem-routing/static/js/976.900700b1.chunk.js",
+    "static/js/472.2d4b75a5.chunk.js": "/react-filesystem-routing/static/js/472.2d4b75a5.chunk.js",
+    "static/js/912.1c8fb8d9.chunk.js": "/react-filesystem-routing/static/js/912.1c8fb8d9.chunk.js",
+    "static/js/980.0bef84ba.chunk.js": "/react-filesystem-routing/static/js/980.0bef84ba.chunk.js",
+    "static/js/558.ab8053c8.chunk.js": "/react-filesystem-routing/static/js/558.ab8053c8.chunk.js",
+    "static/js/889.d1ff00e2.chunk.js": "/react-filesystem-routing/static/js/889.d1ff00e2.chunk.js",
+    "static/js/660.295836cf.chunk.js": "/react-filesystem-routing/static/js/660.295836cf.chunk.js",
+    "static/js/901.bee4f8ba.chunk.js": "/react-filesystem-routing/static/js/901.bee4f8ba.chunk.js",
+    "index.html": "/react-filesystem-routing/index.html",
+    "main.f33150f2.js.map": "/react-filesystem-routing/static/js/main.f33150f2.js.map",
+    "453.d1d7515d.chunk.js.map": "/react-filesystem-routing/static/js/453.d1d7515d.chunk.js.map",
+    "82.076343f3.chunk.js.map": "/react-filesystem-routing/static/js/82.076343f3.chunk.js.map",
+    "701.facf5e14.chunk.js.map": "/react-filesystem-routing/static/js/701.facf5e14.chunk.js.map",
+    "883.3c00d3da.chunk.js.map": "/react-filesystem-routing/static/js/883.3c00d3da.chunk.js.map",
+    "776.9f852b14.chunk.js.map": "/react-filesystem-routing/static/js/776.9f852b14.chunk.js.map",
+    "29.bd06f797.chunk.js.map": "/react-filesystem-routing/static/js/29.bd06f797.chunk.js.map",
+    "976.900700b1.chunk.js.map": "/react-filesystem-routing/static/js/976.900700b1.chunk.js.map",
+    "472.2d4b75a5.chunk.js.map": "/react-filesystem-routing/static/js/472.2d4b75a5.chunk.js.map",
+    "912.1c8fb8d9.chunk.js.map": "/react-filesystem-routing/static/js/912.1c8fb8d9.chunk.js.map",
+    "980.0bef84ba.chunk.js.map": "/react-filesystem-routing/static/js/980.0bef84ba.chunk.js.map",
+    "558.ab8053c8.chunk.js.map": "/react-filesystem-routing/static/js/558.ab8053c8.chunk.js.map",
+    "889.d1ff00e2.chunk.js.map": "/react-filesystem-routing/static/js/889.d1ff00e2.chunk.js.map",
+    "660.295836cf.chunk.js.map": "/react-filesystem-routing/static/js/660.295836cf.chunk.js.map",
+    "901.bee4f8ba.chunk.js.map": "/react-filesystem-routing/static/js/901.bee4f8ba.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.f33150f2.js"
+  ]
+}
