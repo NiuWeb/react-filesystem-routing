@@ -1,9 +1,9 @@
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 import { RoutesComponent } from "./routing";
 
 export default () => {
 
-    return <BrowserRouter>
+    return <HashRouter>
         <RoutesComponent />
-    </BrowserRouter>
+    </HashRouter>
 }
