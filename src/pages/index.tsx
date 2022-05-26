@@ -3,6 +3,7 @@ import Typography from "@mui/material/Typography"
 import lorem from "src/util/lorem";
 
 export const title = "Home";
+export const position = 1;
 const Home: React.FC = () => {
     return <Box>
         <Typography variant="h4" textAlign="center">
